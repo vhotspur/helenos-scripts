@@ -128,6 +128,10 @@ Warning
 EOF_USAGE
 }
 
+determine_module_order() {
+	sed -n 's#.*\(multiboot\|module\)[ \t]\+/boot/\([^ \t]*\).*#\2#p' "$grub_helenos_dir_real/boot/grub/i386-pc/grub.cfg"
+}
+
 make_menu_grub1() {
 	echo "#"
 	echo "# HelenOS"
@@ -135,16 +139,17 @@ make_menu_grub1() {
 	echo "#"
 	echo "title $grub_title"
 	echo "    root $grub_hdd"
-	cat "$grub_helenos_dir_real/boot/$helenos_grub_conf" | \
-		sed -n -e 's#[\t ]*\(kernel\|module\) /#    \1 '"$grub_helenos_dir"'/#p' | \
-		sed 's#//#/#g'
+	for mod in `determine_module_order`; do
+		if echo "$mod" | grep '^kernel' -q; then
+			echo "    kernel $grub_helenos_dir/boot/$mod";
+		else
+			echo "    module $grub_helenos_dir/boot/$mod";
+		fi
+	done
 	echo
 }
 
 make_menu_grub2() {
-	__kernel=`cat "$grub_helenos_dir_real/boot/$helenos_grub_conf" | \
-		sed -n -e 's#[\t ]*kernel /\(.*\)#/'"$grub_helenos_dir"'/\1#p' | \
-		sed 's#//#/#g'`
 	cat <<EOF_GRUB2_BEGIN_SCRIPT
 #!/bin/sh
 #
@@ -152,20 +157,19 @@ make_menu_grub2() {
 # originated at $helenos_boot_dir
 #
 #
-helenos_kernel="$__kernel"
+echo "Found HelenOS ($grub_title)." >&2
 
-[ -f "\$helenos_kernel" ] || exit
-
-echo "Found HelenOS: \$helenos_kernel" >&2
-
-echo 'menuentry "$grub_title" {'
+echo 'menuentry "$grub_title"  --class helenos --class os {'
 echo "    set root='$grub_hdd'"
-echo "    multiboot \$helenos_kernel"
 cat <<EOF_HELENOS_MODULES
 EOF_GRUB2_BEGIN_SCRIPT
-	cat "$grub_helenos_dir_real/boot/$helenos_grub_conf" | \
-		sed -n -e 's#[\t ]*module /#    module /'"$grub_helenos_dir"'/#p' | \
-		sed 's#//#/#g'
+	for mod in `determine_module_order`; do
+		if echo "$mod" | grep '^kernel' -q; then
+			echo "    multiboot $grub_helenos_dir/boot/$mod";
+		else
+			echo "    module $grub_helenos_dir/boot/$mod";
+		fi
+	done
 	echo "EOF_HELENOS_MODULES"
 	cat <<EOF_GRUB2_END_SCRIPT
 echo '}'
@@ -214,9 +218,6 @@ grep -q '[ \t]*\(kernel\|linux\)[ \t]*/vmlinuz' "$grub_conf" 2>/dev/null \
 
 # Where to get compiled kernel and modules from
 helenos_boot_dir="$PWD/boot/distroot/boot"
-
-# HelenOS grub config
-helenos_grub_conf='grub/menu.lst'
 
 # Temporary HelenOS config
 helenos_new_grub_conf='grub/menu.new'
