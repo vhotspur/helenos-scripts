@@ -21,6 +21,17 @@ For details see my
 (currently, HelenOS uses GRUB 2 so some information is out-dated).
 
 
+configure-for-helenos.sh
+------------------------
+This script prepares variables such as CC, LD or CFLAGS to launch a configure
+script of some program that shall be cross-compiled to HelenOS.
+
+For example, it is possible to build `zlib <http://www.zlib.net/>`_
+with following command
+``~/bin/configure-for-helenos.sh -d /tmp/mainline --run-with-env --link-with-cc --ldflags-ignored -- ./configure  --static``.
+The created ``minigzip`` actually works when copied to HelenOS image!
+
+
 install-old-toolchain.sh
 ------------------------
 Install older versions of HelenOS toolchain (GCC, binutils, ...) in
