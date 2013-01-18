@@ -27,9 +27,37 @@ This script prepares variables such as CC, LD or CFLAGS to launch a configure
 script of some program that shall be cross-compiled to HelenOS.
 
 For example, it is possible to build `zlib <http://www.zlib.net/>`_
-with following command
-``~/bin/configure-for-helenos.sh -d /tmp/mainline --run-with-env --link-with-cc --ldflags-ignored -- ./configure  --static``.
+with following command::
+
+	~/bin/configure-for-helenos.sh \
+		-d /path/to/HelenOS/root/directory \
+		--run-with-env \
+		--link-with-cc \
+		--ldflags-ignored \
+		--verbose \
+		-- \
+			./configure \
+				--static
+
 The created ``minigzip`` actually works when copied to HelenOS image!
+
+Quick explanation of used arguments follows.
+
+``-d``
+	* path to HelenOS root directory
+	* HelenOS shall be already configured (i.e. ``Makefile.config`` shall be present)
+``--run-with-env``
+	* launch the program as ``env CC=... ./configure`` instead of ``./configure CC=...``
+``--link-with-cc``
+	* the program is linked with call to compiler (not linker directly)
+``--ldflags-ignored``
+	* not only linking is done with ``CC`` (see ``link-with-cc``) but the script completely ignores ``LDFLAGS``
+	* this appends the ``LDFLAGS`` to normal ``CFLAGS`` (and prepend them with ``-Wl,``)
+``--verbose``
+	* be a bit more verbose on what the script is doing
+``-- ./configure --static``
+	* the program to call (we are interested only in static ``libz.a``)
+
 
 Compiling `GMP <http://gmplib.org/>`_ (a prerequisite for GCC)
 is also possible but following patch has to be applied first::
