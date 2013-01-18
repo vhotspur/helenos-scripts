@@ -11,6 +11,8 @@ usage() {
  where options is combination of the following
     --base-dir=DIR, -d DIR   [MANDATORY]
         DIR is path to HelenOS root directory (must be specified).
+    --cflags=FLAGS
+        Extra C flags to pass to the C compiler.
     --link-with-cc
         Expect that linking is done with compiler (i.e. linker is not
         called explicitly).
@@ -82,9 +84,10 @@ LDFLAGS_IGNORED=false
 BE_VERBOSE=false
 BE_SILENT=false
 RUN_WITH_ENV=false
+EXTRA_CFLAGS=""
 DISABLED_CFLAGS="-Werror -Werror-implicit-function-declaration"
 
-opts="-o hvsd: -l help,verbose,silent,base-dir:,link-with-cc,run-with-env,ldflags-ignored"
+opts="-o hvsd: -l help,verbose,silent,base-dir:,link-with-cc,run-with-env,ldflags-ignored,cflags:"
 getopt -Qq $opts -- "$@" || usage "$0" 1
 eval set -- `getopt -q $opts -- "$@"`
 
@@ -101,6 +104,10 @@ while [ $# -gt 0 ]; do
 			;;
 		-d|--base-dir)
 			HELENOS_HOME="$2"
+			shift
+			;;
+		--cflags)
+			EXTRA_CFLAGS="$2"
 			shift
 			;;
 		--link-with-cc)
@@ -193,7 +200,7 @@ if $LINK_WITH_CC; then
 fi
 
 # Update the CFLAGS
-CFLAGS="$POSIX_INCLUDES $CFLAGS"
+CFLAGS="$POSIX_INCLUDES $CFLAGS $EXTRA_CFLAGS"
 if $LDFLAGS_IGNORED; then
 	CFLAGS="$CFLAGS $LDFLAGS_FOR_CC"
 	LDFLAGS=""
