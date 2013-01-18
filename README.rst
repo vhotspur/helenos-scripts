@@ -31,6 +31,44 @@ with following command
 ``~/bin/configure-for-helenos.sh -d /tmp/mainline --run-with-env --link-with-cc --ldflags-ignored -- ./configure  --static``.
 The created ``minigzip`` actually works when copied to HelenOS image!
 
+Compiling `GMP <http://gmplib.org/>`_ (a prerequisite for GCC)
+is also possible but following patch has to be applied first::
+
+	--- gmp-5.1.0/gmp-h.in	2012-12-18 20:05:09.000000000 +0100
+	+++ gmp-5.1.0/gmp-h.in	2013-01-18 18:27:45.965852213 +0100
+	@@ -24,6 +24,8 @@
+	 #if defined (__cplusplus)
+	 #include <iosfwd>   /* for std::istream, std::ostream, std::string */
+	 #include <cstdio>
+	+#else
+	+#include <stdio.h>
+	 #endif
+
+To actually configure GMP run::
+
+	~/bin/configure-for-helenos.sh \
+		-d /path/to/HelenOS/root/directory \
+		--link-with-cc --ldflags-ignored \
+		--cflags="-D_STDIO_H -DHAVE_STRCHR -Wl,--undefined=longjmp" \
+		-- \
+		./configure \
+			--host=i686-pc-linux-gnu \
+			--disable-shared
+
+Explanation for individual flags:
+
+``_STDIO_H``
+	* first of all, ``stdio.h`` is not included for plain C compilation (see patch)
+	* next, presence of ``stdio.h`` is guessed from a list of known names for guard macros
+	* HelenOS uses different guard naming, we have to add one of the known ones
+``HAVE_STRCHR``
+	* ``configure`` is not able to recognise HelenOS ``strchr()``
+``--undefined=longjmp``
+	* somehow the ``longjmp`` is dropped from the static library when linking
+	* alternative solution is to put the ``libc`` as the last library (probably impossible to achive through ``configure``)
+	* probably not needed when not running ``make check``
+
+
 
 install-old-toolchain.sh
 ------------------------
