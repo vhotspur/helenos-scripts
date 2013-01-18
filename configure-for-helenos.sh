@@ -182,7 +182,7 @@ POSIX_LIBS_LFLAGS="-L$HELENOS_HOME/uspace/lib/posix/ -L$HELENOS_HOME/uspace/lib/
 # The --whole-archive is used to allow correct linking of static libraries
 # (otherwise, the ordering is crucial and we usally cannot change that in the
 # application Makefiles).
-POSIX_LINK_LFLAGS="--whole-archive -lposix -lsoftint --no-whole-archive -lc"
+POSIX_LINK_LFLAGS="--whole-archive --start-group -lposix -lsoftint --end-group --no-whole-archive -lc"
 POSIX_BASE_LFLAGS="-n -T $LINKER_SCRIPT"
 
 
