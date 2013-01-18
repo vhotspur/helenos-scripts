@@ -148,11 +148,15 @@ fi
 
 # Get path to the tools
 CC=`get_var_from_uspace CC`
+AS=`get_var_from_uspace AS`
 LD=`get_var_from_uspace LD`
 AR=`get_var_from_uspace AR`
 STRIP=`get_var_from_uspace STRIP`
-# HelenOS do not use ranlib but some applications require it
+OBJCOPY=`get_var_from_uspace OBJCOPY`
+OBJDUMP=`get_var_from_uspace OBJDUMP`
+# HelenOS do not use ranlib or nm but some applications require it
 RANLIB=`echo "$AR" | sed 's/-ar$/-ranlib/'`
+NM=`echo "$AR" | sed 's/-ar$/-nm/'`
 
 # Get the flags
 CFLAGS=`get_var_from_uspace CFLAGS`
@@ -171,7 +175,7 @@ POSIX_LIBS_LFLAGS="-L$HELENOS_HOME/uspace/lib/posix/ -L$HELENOS_HOME/uspace/lib/
 # The --whole-archive is used to allow correct linking of static libraries
 # (otherwise, the ordering is crucial and we usally cannot change that in the
 # application Makefiles).
-POSIX_LINK_LFLAGS="--whole-archive -lposix --no-whole-archive -lc"
+POSIX_LINK_LFLAGS="--whole-archive -lposix -lsoftint --no-whole-archive -lc"
 POSIX_BASE_LFLAGS="-n -T $LINKER_SCRIPT"
 
 
@@ -215,6 +219,10 @@ done
 
 if $BE_VERBOSE; then
 	print_var AR "$AR"
+	print_var AS "$AS"
+	print_var NM "$NM"
+	print_var OBJCOPY "$OBJCOPY"
+	print_var OBJDUMP "$OBJDUMP"
 	print_var RANLIB "$RANLIB"
 	print_var STRIP "$STRIP"
 	print_var CC "$CC"
@@ -227,6 +235,10 @@ fi
 if $RUN_WITH_ENV; then
 	$RUN env \
 		AR="$AR" \
+		AS="$AS" \
+		NM="$NM" \
+		OBJCOPY="$OBJCOPY" \
+		OBJDUMP="$OBJDUMP" \
 		RANLIB="$RANLIB" \
 		STRIP="$STRIP" \
 		LD="$LD" \
@@ -238,6 +250,10 @@ else
 	$RUN \
 		"$@" \
 		AR="$AR" \
+		AS="$AS" \
+		NM="$NM" \
+		OBJCOPY="$OBJCOPY" \
+		OBJDUMP="$OBJDUMP" \
 		RANLIB="$RANLIB" \
 		STRIP="$STRIP" \
 		LD="$LD" \
