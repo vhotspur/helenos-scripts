@@ -59,7 +59,9 @@ Quick explanation of used arguments follows.
 	* the program to call (we are interested only in static ``libz.a``)
 
 
-Compiling `GMP <http://gmplib.org/>`_ (a prerequisite for GCC)
+`GMP <http://gmplib.org/>`_ compilation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Compiling of this GCC prerequisite
 is also possible but following patch has to be applied first::
 
 	--- gmp-5.1.0/gmp-h.in	2012-12-18 20:05:09.000000000 +0100
@@ -97,7 +99,11 @@ Explanation for individual flags:
 	* probably not needed when not running ``make check``
 
 
-Compiling of `MPFR <http://www.mpfr.org/>`_ (another GCC prerequisite)::
+
+`MPFR <http://www.mpfr.org/>`_ compilation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This is yet another GCC prerequisite::
 
 	~/bin/helenos-scripts/configure-for-helenos.sh \
 		-d /path/to/HelenOS/root/directory/ \
