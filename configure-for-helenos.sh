@@ -86,8 +86,10 @@ BE_SILENT=false
 RUN_WITH_ENV=false
 EXTRA_CFLAGS=""
 DISABLED_CFLAGS="-Werror -Werror-implicit-function-declaration"
+ARCH_ARGS=""
+EXTRA_ARGS=""
 
-opts="-o hvsd: -l help,verbose,silent,base-dir:,link-with-cc,run-with-env,ldflags-ignored,cflags:"
+opts="-o hvsd: -l help,verbose,silent,base-dir:,link-with-cc,run-with-env,ldflags-ignored,arch-arg:,cflags:"
 getopt -Qq $opts -- "$@" || usage "$0" 1
 eval set -- `getopt -q $opts -- "$@"`
 
@@ -108,6 +110,10 @@ while [ $# -gt 0 ]; do
 			;;
 		--cflags)
 			EXTRA_CFLAGS="$2"
+			shift
+			;;
+		--arch-arg)
+			ARCH_ARGS="$ARCH_ARGS $2"
 			shift
 			;;
 		--link-with-cc)
@@ -224,6 +230,27 @@ for flag in $CFLAGS_OLD; do
 done
 
 
+# Determine the architecture
+UARCH=`get_var_from_uspace UARCH`
+TARGET=""
+case $UARCH in
+	ia32)
+		TARGET="i686-pc-linux-gnu"
+		;;
+	amd64)
+		TARGET="amd64-linux-gnu"
+		;;
+	*)
+		die "Unknown userspace architecture $UARCH."
+		;;
+esac
+
+# Set the architecture for given arguments
+for arg in $ARCH_ARGS; do
+	EXTRA_ARGS="$EXTRA_ARGS ${arg}${TARGET}"
+done
+
+
 if $BE_VERBOSE; then
 	print_var AR "$AR"
 	print_var AS "$AS"
@@ -235,7 +262,8 @@ if $BE_VERBOSE; then
 	print_var CC "$CC"
 	print_var CFLAGS "$CFLAGS"
 	print_var LD "$LD"
-	print_var LDFLAGS "$LDFLAGS" --last
+	print_var LDFLAGS "$LDFLAGS"
+	print_var "extra arguments" "$EXTRA_ARGS" --last
 fi
 
 # Now, just run it
@@ -252,10 +280,11 @@ if $RUN_WITH_ENV; then
 		LDFLAGS="$LDFLAGS" \
 		CC="$CC" \
 		CFLAGS="$CFLAGS" \
-		"$@"
+		"$@" $EXTRA_ARGS
 else
 	$RUN \
 		"$@" \
+		$EXTRA_ARGS \
 		AR="$AR" \
 		AS="$AS" \
 		NM="$NM" \
