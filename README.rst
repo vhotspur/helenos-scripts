@@ -129,7 +129,20 @@ Arguments to ``configure`` just specify path to previously compiled GMP.
 
 There is some problem (probably related to the constant definitions and also
 something with ``printf``) because some of the tests from ``make check``
-failed when run in HelenOS. 
+failed when run in HelenOS.
+
+Failed tests:
+
+ * ``tfprintf`` (Error in test #8: mpfr_vfprintf printed 22 characters instead of 2)
+ * ``tget_d`` (``MPFR_DOUBLE_SPEC`` not defined, a lot of "got 3.78262555946224235000e-307 instead of -3.78261899999999968000e-307")
+ * ``tget_flt`` (expected 3.40282002e+38, got 3.40282347e+38)
+ * ``tget_set_d64`` (no reason printed)
+ * ``tget_sj`` (no reason printed)
+ * ``tout_str`` (killed manually, took too much time)
+ * ``tprintf`` (NULL pointer dereference)
+ * ``tset_sj`` (no reason printed)
+ * ``tsprintf`` (expected: "00000010610209857723, -1.2345678875e+07, 0.032258" got:      "00000010610209857723, -1.2345678875e+07, %Lf")
+
 
 
 install-old-toolchain.sh
