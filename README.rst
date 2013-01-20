@@ -97,6 +97,34 @@ Explanation for individual flags:
 	* probably not needed when not running ``make check``
 
 
+Compiling of `MPFR <http://www.mpfr.org/>`_ (another GCC prerequisite)::
+
+	~/bin/helenos-scripts/configure-for-helenos.sh \
+		-d /path/to/HelenOS/root/directory/ \
+		--arch-arg=--host= \
+		--link-with-cc \
+		--cflags="-DCHAR_BIT=8 -D_MPFR_H_HAVE_FILE \
+			-DDBL_MIN=2.22507e-308 -DDBL_MAX=1.79769e+308 -DDBL_EPSILON=2.22045e-16 \
+			-DLDBL_MIN=3.3621e-4932 -DLDBL_MAX=1.18973e+4932 -DLDBL_EPSILON=1.0842e-19 \
+			-DFLT_MIN=1.17549e-38 -DFLT_MAX=3.40282e+38 -DFLT_EPSILON=1.19209e-07" \
+		 -- \
+		 ./configure \
+		 	--with-gmp-lib=/tmp/gmp-5.1.0/.libs/  \
+		 	--with-gmp-include=/tmp/gmp-5.1.0 \
+		 	--disable-share
+
+Where ``arch-arg`` is automatically appends the target architecture to the
+given option (i.e. the result would be ``--host=i686-pc-linux-gnu`` when
+``ia32`` is selected).
+
+It is necessary to define ``double`` and ``float`` limits (we need to compute
+these properly and add them to ``float.h``).
+Arguments to ``configure`` just specify path to previously compiled GMP.
+
+There is some problem (probably related to the constant definitions and also
+something with ``printf``) because some of the tests from ``make check``
+failed when run in HelenOS. 
+
 
 install-old-toolchain.sh
 ------------------------
