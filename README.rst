@@ -23,6 +23,11 @@ For details see my
 
 configure-for-helenos.sh
 ------------------------
+
+.. note:: ``configure-for-helenos.sh`` script has been superseded by
+        `HelenOS coastline <https://github.com/vhotspur/coastline>`_.
+        It is recommended to switch to Coastline.
+
 This script prepares variables such as CC, LD or CFLAGS to launch a configure
 script of some program that shall be cross-compiled to HelenOS.
 
